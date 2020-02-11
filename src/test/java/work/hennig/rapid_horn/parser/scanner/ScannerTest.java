@@ -68,6 +68,19 @@ class ScannerTest {
     }
 
     @Test
+    public void nextToken_ConstKeyword() {
+        Scanner scanner = new Scanner("const");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.KEY_CONST, token.getType());
+        assertEquals("const", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
     public void nextToken_FuncKeyword() {
         Scanner scanner = new Scanner("func");
 

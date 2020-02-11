@@ -10,6 +10,7 @@ public enum TokenType {
     LIT_FALSE,
 
     // keywords
+    KEY_CONST,
     KEY_FUNC,
     KEY_IF,
     KEY_ELSE,

@@ -24,7 +24,10 @@ public class Scanner {
         if (input.length() > 0) {
             // check for keywords, boolean literals and type identifiers, assume identifier for other alphabetic input
             if (Character.isAlphabetic(input.charAt(0))) {
-                if (input.startsWith("func")) {
+                if (input.startsWith("const")) {
+                    input = input.substring("const".length());
+                    return new Token(TokenType.KEY_CONST, "const");
+                } else if (input.startsWith("func")) {
                     input = input.substring("func".length());
                     return new Token(TokenType.KEY_FUNC, "func");
                 } else if (input.startsWith("if")) {

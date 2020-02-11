@@ -10,17 +10,17 @@ public enum TokenType {
     LIT_FALSE,
 
     // keywords
-    KEYWORD_FUNC,
-    KEYWORD_IF,
-    KEYWORD_ELSE,
-    KEYWORD_WHILE,
-    KEYWORD_SKIP,
+    KEY_FUNC,
+    KEY_IF,
+    KEY_ELSE,
+    KEY_WHILE,
+    KEY_SKIP,
 
     // operators
     OP_PLUS,
     OP_MINUS,
-    OP_TIMES,
-    OP_MOD,
+    OP_MULTIPLICATION,
+    OP_MODULO,
     OP_GREATER_THAN,
     OP_GREATER_THAN_OR_EQUAL,
     OP_LESS_THAN,

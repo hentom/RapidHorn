@@ -1,21 +1,21 @@
 package work.hennig.rapid_horn.parser.scanner;
 
-import java.util.Stack;
-
 public class Scanner {
 
     private String input;
-    private Stack<Token> stack;
+    private Token cache;
 
     public Scanner(String input) {
         this.input = input;
-        this.stack = new Stack<>();
+        this.cache = null;
     }
 
     public Token nextToken() {
         // use cached token from the stack, whenever possible
-        if (!stack.empty()) {
-            return stack.pop();
+        if (cache != null) {
+            Token tmp = cache;
+            cache = null;
+            return tmp;
         }
 
         // skip whitespace characters
@@ -26,19 +26,19 @@ public class Scanner {
             if (Character.isAlphabetic(input.charAt(0))) {
                 if (input.startsWith("func")) {
                     input = input.substring("func".length());
-                    return new Token(TokenType.KEYWORD_FUNC, "func");
+                    return new Token(TokenType.KEY_FUNC, "func");
                 } else if (input.startsWith("if")) {
                     input = input.substring("if".length());
-                    return new Token(TokenType.KEYWORD_IF, "if");
+                    return new Token(TokenType.KEY_IF, "if");
                 } else if (input.startsWith("else")) {
                     input = input.substring("else".length());
-                    return new Token(TokenType.KEYWORD_ELSE, "else");
+                    return new Token(TokenType.KEY_ELSE, "else");
                 } else if (input.startsWith("while")) {
                     input = input.substring("while".length());
-                    return new Token(TokenType.KEYWORD_WHILE, "while");
+                    return new Token(TokenType.KEY_WHILE, "while");
                 } else if (input.startsWith("skip")) {
                     input = input.substring("skip".length());
-                    return new Token(TokenType.KEYWORD_SKIP, "skip");
+                    return new Token(TokenType.KEY_SKIP, "skip");
                 } else if (input.startsWith("true")) {
                     input = input.substring("true".length());
                     return new Token(TokenType.LIT_TRUE, "true");
@@ -53,7 +53,7 @@ public class Scanner {
                     return new Token(TokenType.TYPE_BOOL, "Bool");
                 } else if (input.startsWith("mod")) {
                     input = input.substring("mod".length());
-                    return new Token(TokenType.OP_MOD, "mod");
+                    return new Token(TokenType.OP_MODULO, "mod");
                 } else {
                     int pos = 0;
                     while (pos < input.length() && Character.isAlphabetic(input.charAt(pos))) {
@@ -87,7 +87,7 @@ public class Scanner {
                     return new Token(TokenType.OP_MINUS, "-");
                 case '*':
                     input = input.substring("*".length());
-                    return new Token(TokenType.OP_TIMES, "*");
+                    return new Token(TokenType.OP_MULTIPLICATION, "*");
                 case '>':
                     if (nextAvailable && input.charAt(1) == '=') {
                         input = input.substring(">=".length());
@@ -162,6 +162,10 @@ public class Scanner {
     }
 
     public void pushToken(Token token) {
-        stack.push(token);
+        if (cache != null) {
+            // TODO: use custom exception
+            throw new UnsupportedOperationException();
+        }
+        cache = token;
     }
 }

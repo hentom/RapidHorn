@@ -30,7 +30,7 @@ public class Parser {
 
     private Function parseFunction() {
         Token token = scanner.nextToken();
-        if (token.getType() != TokenType.KEYWORD_FUNC) {
+        if (token.getType() != TokenType.KEY_FUNC) {
             fail("keyword \'func\'", token.getContent());
         }
 

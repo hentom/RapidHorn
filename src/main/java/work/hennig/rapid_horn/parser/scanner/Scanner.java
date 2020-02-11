@@ -3,18 +3,18 @@ package work.hennig.rapid_horn.parser.scanner;
 public class Scanner {
 
     private String input;
-    private Token cache;
+    private Token buffer;
 
     public Scanner(String input) {
         this.input = input;
-        this.cache = null;
+        this.buffer = null;
     }
 
     public Token nextToken() {
         // use cached token from the stack, whenever possible
-        if (cache != null) {
-            Token tmp = cache;
-            cache = null;
+        if (buffer != null) {
+            Token tmp = buffer;
+            buffer = null;
             return tmp;
         }
 
@@ -154,18 +154,17 @@ public class Scanner {
                     input = input.substring(";".length());
                     return new Token(TokenType.SYM_SEMICOLON, ";");
             }
-            System.err.println("ERROR: (scanner) unrecognized token starting with \'" + input.charAt(0) + "\'");
-            System.exit(1);
+            throw new UnsupportedOperationException("unrecognized token starting with \'" + input.charAt(0) + "\'");
         }
 
         return new Token(TokenType.EOF, "");
     }
 
     public void pushToken(Token token) {
-        if (cache != null) {
+        if (buffer != null) {
             // TODO: use custom exception
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("scanner buffer overflow");
         }
-        cache = token;
+        buffer = token;
     }
 }

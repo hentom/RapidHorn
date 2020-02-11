@@ -393,6 +393,54 @@ class ScannerTest {
     }
 
     @Test
+    public void nextToken_Semicolon() {
+        Scanner scanner = new Scanner(";");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.SYM_SEMICOLON, token.getType());
+        assertEquals(";", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
+    public void nextToken_IntType() {
+        Scanner scanner = new Scanner("Int");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.TYPE_INT, token.getType());
+        assertEquals("Int", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
+    public void nextToken_BoolType() {
+        Scanner scanner = new Scanner("Bool");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.TYPE_BOOL, token.getType());
+        assertEquals("Bool", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
+    public void nextToken_Underscore_Fail() {
+        Scanner scanner = new Scanner("_");
+
+        assertThrows(UnsupportedOperationException.class, () -> {
+            Token token = scanner.nextToken();
+        });
+    }
+
+    @Test
     public void pushToken_EmptyScannerString_AddOneToken() {
         Scanner scanner = new Scanner("");
         scanner.pushToken(new Token(TokenType.SYM_SEMICOLON, ";"));

@@ -17,11 +17,11 @@ class ScannerTest {
 
     @Test
     public void nextToken_Identifier() {
-        Scanner scanner = new Scanner("id");
+        Scanner scanner = new Scanner("funct");
 
         Token token = scanner.nextToken();
         assertEquals(TokenType.IDENTIFIER, token.getType());
-        assertEquals("id", token.getContent());
+        assertEquals("funct", token.getContent());
 
         token = scanner.nextToken();
         assertEquals(TokenType.EOF, token.getType());
@@ -406,6 +406,19 @@ class ScannerTest {
     }
 
     @Test
+    public void nextToken_Comma() {
+        Scanner scanner = new Scanner(",");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.SYM_COMMA, token.getType());
+        assertEquals(",", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
     public void nextToken_Semicolon() {
         Scanner scanner = new Scanner(";");
 
@@ -485,12 +498,22 @@ class ScannerTest {
         assertEquals("", token.getContent());
     }
 
-    @Test
+    /*@Test
     public void pushToken_EmptyScannerString_AddTwoTokens() {
         Scanner scanner = new Scanner("");
         scanner.pushToken(new Token(TokenType.OP_PLUS, "+"));
-        assertThrows(UnsupportedOperationException.class, () -> {
-            scanner.pushToken(new Token(TokenType.SYM_SEMICOLON, ";"));
-        });
-    }
+        scanner.pushToken(new Token(TokenType.SYM_SEMICOLON, ";"));
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.SYM_SEMICOLON, token.getType());
+        assertEquals(";", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.OP_PLUS, token.getType());
+        assertEquals("+", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }*/
 }

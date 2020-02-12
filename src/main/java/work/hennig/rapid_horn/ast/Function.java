@@ -6,31 +6,25 @@ import java.util.List;
 public class Function {
 
     private String id;
-    private List<DeclarationStatement> parameters;
-    private List<Statement> block;
+    private List<Declaration> parameters;
+    private List<Statement> statements;
 
-    public Function(String id, List<Statement> block) {
-        this.id = id;
-        this.parameters = new LinkedList<>();
-        this.block = block;
-    }
-
-    public Function(String id, List<DeclarationStatement> parameters, List<Statement> block) {
+    public Function(String id, List<Declaration> parameters, List<Statement> statements) {
         this.id = id;
         this.parameters = parameters;
-        this.block = block;
+        this.statements = statements;
     }
 
     public String getId() {
         return id;
     }
 
-    public List<DeclarationStatement> getParameters() {
+    public List<Declaration> getParameters() {
         return parameters;
     }
 
-    public List<Statement> getBlock() {
-        return block;
+    public List<Statement> getStatements() {
+        return statements;
     }
 
     public void accept(ASTVisitor visitor) {

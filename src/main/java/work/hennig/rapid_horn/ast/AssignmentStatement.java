@@ -2,18 +2,18 @@ package work.hennig.rapid_horn.ast;
 
 import work.hennig.rapid_horn.ast.arithmetic_expression.ArithmeticExpression;
 
-public class DefinitionStatement extends Statement {
+public class AssignmentStatement extends Statement {
 
-    private DeclarationStatement declaration;
+    private String id;
     private ArithmeticExpression expression;
 
-    public DefinitionStatement(DeclarationStatement declaration, ArithmeticExpression expression) {
-        this.declaration = declaration;
+    public AssignmentStatement(String id, ArithmeticExpression expression) {
+        this.id = id;
         this.expression = expression;
     }
 
-    public DeclarationStatement getDeclaration() {
-        return declaration;
+    public String getId() {
+        return id;
     }
 
     public ArithmeticExpression getExpression() {

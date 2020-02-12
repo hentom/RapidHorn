@@ -1,5 +1,7 @@
 package work.hennig.rapid_horn.parser.scanner;
 
+import java.util.Stack;
+
 public class Scanner {
 
     private String input;
@@ -8,6 +10,11 @@ public class Scanner {
     public Scanner(String input) {
         this.input = input;
         this.buffer = null;
+    }
+
+    public Scanner(Scanner scanner) {
+        this.input = scanner.input; // String objects are immutable
+        this.buffer = scanner.buffer;
     }
 
     public Token nextToken() {
@@ -19,42 +26,42 @@ public class Scanner {
         }
 
         // skip whitespace characters
-        input.trim();
+        input = input.trim();
 
         if (input.length() > 0) {
             // check for keywords, boolean literals and type identifiers, assume identifier for other alphabetic input
             if (Character.isAlphabetic(input.charAt(0))) {
-                if (input.startsWith("const")) {
+                if (startsWithKeyword("const")) {
                     input = input.substring("const".length());
                     return new Token(TokenType.KEY_CONST, "const");
-                } else if (input.startsWith("func")) {
+                } else if (startsWithKeyword("func")) {
                     input = input.substring("func".length());
                     return new Token(TokenType.KEY_FUNC, "func");
-                } else if (input.startsWith("if")) {
+                } else if (startsWithKeyword("if")) {
                     input = input.substring("if".length());
                     return new Token(TokenType.KEY_IF, "if");
-                } else if (input.startsWith("else")) {
+                } else if (startsWithKeyword("else")) {
                     input = input.substring("else".length());
                     return new Token(TokenType.KEY_ELSE, "else");
-                } else if (input.startsWith("while")) {
+                } else if (startsWithKeyword("while")) {
                     input = input.substring("while".length());
                     return new Token(TokenType.KEY_WHILE, "while");
-                } else if (input.startsWith("skip")) {
+                } else if (startsWithKeyword("skip")) {
                     input = input.substring("skip".length());
                     return new Token(TokenType.KEY_SKIP, "skip");
-                } else if (input.startsWith("true")) {
+                } else if (startsWithKeyword("true")) {
                     input = input.substring("true".length());
                     return new Token(TokenType.LIT_TRUE, "true");
-                } else if (input.startsWith("false")) {
+                } else if (startsWithKeyword("false")) {
                     input = input.substring("false".length());
                     return new Token(TokenType.LIT_FALSE, "false");
-                } else if (input.startsWith("Int")) {
+                } else if (startsWithKeyword("Int")) {
                     input = input.substring("Int".length());
                     return new Token(TokenType.TYPE_INT, "Int");
-                } else if (input.startsWith("Bool")) {
+                } else if (startsWithKeyword("Bool")) {
                     input = input.substring("Bool".length());
                     return new Token(TokenType.TYPE_BOOL, "Bool");
-                } else if (input.startsWith("mod")) {
+                } else if (startsWithKeyword("mod")) {
                     input = input.substring("mod".length());
                     return new Token(TokenType.OP_MODULO, "mod");
                 } else {
@@ -153,6 +160,9 @@ public class Scanner {
                 case '}':
                     input = input.substring("}".length());
                     return new Token(TokenType.SYM_RIGHT_CURLY_BRACKET, "}");
+                case ',':
+                    input = input.substring(",".length());
+                    return new Token(TokenType.SYM_COMMA, ",");
                 case ';':
                     input = input.substring(";".length());
                     return new Token(TokenType.SYM_SEMICOLON, ";");
@@ -163,11 +173,19 @@ public class Scanner {
         return new Token(TokenType.EOF, "");
     }
 
-    public void pushToken(Token token) {
+    private boolean startsWithKeyword(String keyword) {
+        if (keyword.length() < input.length()) {
+            return (input.startsWith(keyword) && !Character.isAlphabetic(input.charAt(keyword.length())));
+        } else {
+            return input.startsWith(keyword);
+        }
+    }
+
+    public Token pushToken(Token token) {
         if (buffer != null) {
-            // TODO: use custom exception
-            throw new UnsupportedOperationException("scanner buffer overflow");
+            throw new UnsupportedOperationException("scanner token buffer overflow");
         }
         buffer = token;
+        return buffer;
     }
 }

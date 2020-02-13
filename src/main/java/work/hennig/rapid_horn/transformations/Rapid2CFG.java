@@ -2,7 +2,7 @@ package work.hennig.rapid_horn.transformations;
 
 import work.hennig.rapid_horn.rapid.*;
 
-public class Rapid2CFG  implements RapidVisitor {
+public class Rapid2CFG implements RapidVisitor {
 
     @Override
     public void visit(AssignmentStatement statement) {

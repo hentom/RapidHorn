@@ -12,14 +12,16 @@ public class Main {
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            Path path = Path.of(args[i]);
+            String input = "";
             try {
-                String input = Files.readString(Path.of(args[i]));
-                Parser parser = new Parser(input);
-                Program program = parser.parseProgram();
-                System.out.println("type check: " + TypeChecker.check(program));
+                input = Files.readString(Path.of(args[i]));
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            Parser parser = new Parser(input);
+            Program program = parser.parseProgram();
+            if (!TypeChecker.check(program)) {
+                System.err.println("ERROR: type check failed");
             }
         }
     }

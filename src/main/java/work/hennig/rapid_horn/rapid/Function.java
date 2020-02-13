@@ -26,7 +26,7 @@ public class Function {
         return statements;
     }
 
-    public void accept(Visitor visitor) {
+    public void accept(RapidVisitor visitor) {
         visitor.visit(this);
     }
 }

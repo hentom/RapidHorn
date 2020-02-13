@@ -1,10 +1,7 @@
 package work.hennig.rapid_horn.parser;
 
 import work.hennig.rapid_horn.rapid.*;
-import work.hennig.rapid_horn.rapid.expression.*;
-import work.hennig.rapid_horn.parser.scanner.Scanner;
-import work.hennig.rapid_horn.parser.scanner.Token;
-import work.hennig.rapid_horn.parser.scanner.TokenType;
+import work.hennig.rapid_horn.expression.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -170,7 +167,11 @@ public class Parser {
 
         expect(TokenType.SYM_SEMICOLON);
 
-        return new AssignmentStatement(id, expression);
+        if (index == null) {
+            return new AssignmentStatement(id, expression);
+        } else {
+            return new AssignmentStatement(id, index, expression);
+        }
     }
 
     private ConditionalStatement parseConditionalStatement() {

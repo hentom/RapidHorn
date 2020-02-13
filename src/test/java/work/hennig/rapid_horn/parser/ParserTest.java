@@ -2,7 +2,7 @@ package work.hennig.rapid_horn.parser;
 
 import org.junit.jupiter.api.Test;
 import work.hennig.rapid_horn.rapid.*;
-import work.hennig.rapid_horn.rapid.expression.*;
+import work.hennig.rapid_horn.expression.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

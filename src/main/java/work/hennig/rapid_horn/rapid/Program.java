@@ -14,7 +14,7 @@ public class Program {
         return functions;
     }
 
-    public void accept(Visitor visitor) {
+    public void accept(RapidVisitor visitor) {
         visitor.visit(this);
     }
 }

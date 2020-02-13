@@ -14,6 +14,13 @@ public class Declaration {
         this.id = id;
     }
 
+    public Declaration(DeclarationStatement statement) {
+        this.constant = statement.isConstant();
+        this.type = statement.getType();
+        this.id = statement.getId();
+        this.array = statement.isArray();
+    }
+
     public boolean isConstant() {
         return constant;
     }
@@ -30,7 +37,7 @@ public class Declaration {
         return array;
     }
 
-    public void accept(Visitor visitor) {
+    public void accept(RapidVisitor visitor) {
         visitor.visit(this);
     }
 }

@@ -1,6 +1,6 @@
 package work.hennig.rapid_horn.rapid;
 
-import work.hennig.rapid_horn.rapid.expression.Expression;
+import work.hennig.rapid_horn.expression.Expression;
 
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public class DeclarationStatement extends Statement {
     }
 
     @Override
-    public void accept(Visitor visitor) {
+    public void accept(RapidVisitor visitor) {
         visitor.visit(this);
     }
 }

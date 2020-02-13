@@ -1,8 +1,8 @@
 package work.hennig.rapid_horn.parser;
 
 import org.junit.jupiter.api.Test;
-import work.hennig.rapid_horn.ast.*;
-import work.hennig.rapid_horn.ast.arithmetic_expression.*;
+import work.hennig.rapid_horn.rapid.*;
+import work.hennig.rapid_horn.rapid.expression.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,7 +54,7 @@ class ParserTest {
         assertEquals("b", b1Var.getId());
         assertTrue(b1Var.isArray());
 
-        LiteralExpression zero = (LiteralExpression) b1Var.getIndex();
+        IntegerLiteralExpression zero = (IntegerLiteralExpression) b1Var.getIndex();
         assertEquals(0, zero.getValue());
 
         VariableExpression a2Var = (VariableExpression) b2Var.getIndex();

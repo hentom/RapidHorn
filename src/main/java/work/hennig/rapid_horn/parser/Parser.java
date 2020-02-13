@@ -1,9 +1,7 @@
 package work.hennig.rapid_horn.parser;
 
-import work.hennig.rapid_horn.ast.*;
-import work.hennig.rapid_horn.ast.arithmetic_expression.*;
-import work.hennig.rapid_horn.ast.boolean_expression.BooleanExpression;
-import work.hennig.rapid_horn.ast.boolean_expression.RelationalExpression;
+import work.hennig.rapid_horn.rapid.*;
+import work.hennig.rapid_horn.rapid.expression.*;
 import work.hennig.rapid_horn.parser.scanner.Scanner;
 import work.hennig.rapid_horn.parser.scanner.Token;
 import work.hennig.rapid_horn.parser.scanner.TokenType;
@@ -138,7 +136,7 @@ public class Parser {
 
         Token token = scanner.nextToken();
         if (token.getType() == TokenType.OP_ASSIGN) {
-            ArithmeticExpression expression = parseArithmeticExpression();
+            Expression expression = parseArithmeticExpression();
             expect(TokenType.SYM_SEMICOLON);
             return new DeclarationStatement(declaration, expression);
         } else {
@@ -157,9 +155,18 @@ public class Parser {
             fail("variable identifier", token.getContent());
         }
 
+        Expression index = null;
+        token = scanner.nextToken();
+        if (token.getType() == TokenType.SYM_LEFT_SQUARE_BRACKET) {
+            index = parseArithmeticExpression();
+            expect(TokenType.SYM_RIGHT_SQUARE_BRACKET);
+        } else {
+            scanner.pushToken(token);
+        }
+
         expect(TokenType.OP_ASSIGN);
 
-        ArithmeticExpression expression = parseArithmeticExpression();
+        Expression expression = parseArithmeticExpression();
 
         expect(TokenType.SYM_SEMICOLON);
 
@@ -170,7 +177,7 @@ public class Parser {
         expect(TokenType.KEY_IF);
 
         expect(TokenType.SYM_LEFT_PARENTHESIS);
-        BooleanExpression condition = parseBooleanExpression();
+        Expression condition = parseExpression();
         expect(TokenType.SYM_RIGHT_PARENTHESIS);
 
         List<Statement> ifBlock = parseBlock();
@@ -190,7 +197,7 @@ public class Parser {
         expect(TokenType.KEY_WHILE);
 
         expect(TokenType.SYM_LEFT_PARENTHESIS);
-        BooleanExpression condition = parseBooleanExpression();
+        Expression condition = parseExpression();
         expect(TokenType.SYM_RIGHT_PARENTHESIS);
 
         List<Statement> block = parseBlock();
@@ -198,15 +205,59 @@ public class Parser {
         return new WhileStatement(condition, block);
     }
 
-    private ArithmeticExpression parseArithmeticExpression() {
-        ArithmeticExpression left = parseArithmeticTerm();
+    private Expression parseExpression() {
+        Expression left = parseRelationalExpression();
+
+        Token token = scanner.nextToken();
+        if (token.getType() == TokenType.OP_AND) {
+            Expression right = parseExpression();
+            return new AndExpression(left, right);
+        } else if (token.getType() == TokenType.OP_OR) {
+            Expression right = parseExpression();
+            return new OrExpression(left, right);
+        } else {
+            scanner.pushToken(token);
+            return left;
+        }
+    }
+
+    private Expression parseRelationalExpression() {
+        Expression left = parseArithmeticExpression();
+
+        Token token = scanner.nextToken();
+        if (token.getType() == TokenType.OP_EQUAL) {
+            Expression right = parseArithmeticExpression();
+            return new EqualExpression(left, right);
+        } else if (token.getType() == TokenType.OP_NOT_EQUAL) {
+            Expression right = parseArithmeticExpression();
+            return new NotEqualExpression(left, right);
+        } else if (token.getType() == TokenType.OP_LESS_THAN) {
+            Expression right = parseArithmeticExpression();
+            return new LessThanExpression(left, right);
+        } else if (token.getType() == TokenType.OP_LESS_THAN_OR_EQUAL) {
+            Expression right = parseArithmeticExpression();
+            return new LessEqualExpression(left, right);
+        } else if (token.getType() == TokenType.OP_GREATER_THAN) {
+            Expression right = parseArithmeticExpression();
+            return new GreaterThanExpression(left, right);
+        } else if (token.getType() == TokenType.OP_GREATER_THAN_OR_EQUAL) {
+            Expression right = parseArithmeticExpression();
+            return new GreaterEqualExpression(left, right);
+        } else {
+            scanner.pushToken(token);
+            return left;
+        }
+    }
+
+    private Expression parseArithmeticExpression() {
+        Expression left = parseTermExpression();
 
         Token token = scanner.nextToken();
         if (token.getType() == TokenType.OP_PLUS) {
-            ArithmeticExpression right = parseArithmeticExpression();
+            Expression right = parseArithmeticExpression();
             return new AdditionExpression(left, right);
         } else if (token.getType() == TokenType.OP_MINUS) {
-            ArithmeticExpression right = parseArithmeticExpression();
+            Expression right = parseArithmeticExpression();
             return new SubtractionExpression(left, right);
         } else {
             scanner.pushToken(token);
@@ -214,15 +265,15 @@ public class Parser {
         }
     }
 
-    private ArithmeticExpression parseArithmeticTerm() {
-        ArithmeticExpression left = parseArithmeticFactor();
+    private Expression parseTermExpression() {
+        Expression left = parseFactorExpression();
 
         Token token = scanner.nextToken();
         if (token.getType() == TokenType.OP_MULTIPLICATION) {
-            ArithmeticExpression right = parseArithmeticTerm();
+            Expression right = parseTermExpression();
             return new MultiplicationExpression(left, right);
         } else if (token.getType() == TokenType.OP_MODULO) {
-            ArithmeticExpression right = parseArithmeticTerm();
+            Expression right = parseTermExpression();
             return new ModuloExpression(left, right);
         } else {
             scanner.pushToken(token);
@@ -230,16 +281,20 @@ public class Parser {
         }
     }
 
-    private ArithmeticExpression parseArithmeticFactor() {
+    private Expression parseFactorExpression() {
         Token token = scanner.nextToken();
         String content = token.getContent();
         switch (token.getType()) {
             case LIT_INT:
-                return new LiteralExpression(Integer.parseInt(content));
+                return new IntegerLiteralExpression(Integer.parseInt(content));
+            case LIT_TRUE:
+                return new BooleanLiteralExpression(true);
+            case LIT_FALSE:
+                return new BooleanLiteralExpression(false);
             case IDENTIFIER:
                 token = scanner.nextToken();
                 if (token.getType() == TokenType.SYM_LEFT_SQUARE_BRACKET) {
-                    ArithmeticExpression index = parseArithmeticExpression();
+                    Expression index = parseArithmeticExpression();
                     expect(TokenType.SYM_RIGHT_SQUARE_BRACKET);
                     return new VariableExpression(content, index);
                 } else {
@@ -247,21 +302,15 @@ public class Parser {
                     return new VariableExpression(content);
                 }
             case OP_MINUS:
-                return new NegationExpression(parseArithmeticFactor());
+                return new NegationExpression(parseFactorExpression());
+            case OP_NEG:
+                return new NotExpression(parseFactorExpression());
             case SYM_LEFT_PARENTHESIS: {
-                ArithmeticExpression subexpression = parseArithmeticExpression();
+                Expression subexpression = parseArithmeticExpression();
                 expect(TokenType.SYM_RIGHT_PARENTHESIS);
                 return subexpression;
             }
         }
-        throw new UnsupportedOperationException();
-    }
-
-    private BooleanExpression parseBooleanExpression() {
-        throw new UnsupportedOperationException();
-    }
-
-    private RelationalExpression parseRelationalExpression() {
         throw new UnsupportedOperationException();
     }
 

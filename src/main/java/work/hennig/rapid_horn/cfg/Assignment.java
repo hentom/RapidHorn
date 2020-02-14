@@ -4,12 +4,20 @@ import work.hennig.rapid_horn.expression.Expression;
 
 public class Assignment extends Transition {
 
-    private String identifier;
+    private Variable variable;
     private Expression expression;
 
-    public Assignment(Location source, Location target, String identifier, Expression expression) {
+    public Assignment(Location source, Location target, Variable variable, Expression expression) {
         super(source, target);
-        this.identifier = identifier;
+        this.variable = variable;
         this.expression = expression;
+    }
+
+    public Variable getVariable() {
+        return variable;
+    }
+
+    public Expression getExpression() {
+        return expression;
     }
 }

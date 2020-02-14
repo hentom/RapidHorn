@@ -5,17 +5,17 @@ import java.util.List;
 
 public class Location {
 
-    private List<Variable> liveVariables;
+    private List<Declaration> liveVariables;
     private List<Transition> incomingTransitions;
     private List<Transition> outgoingTransitions;
 
-    public Location(List<Variable> liveVariables) {
+    public Location(List<Declaration> liveVariables) {
         this.liveVariables = liveVariables;
         this.incomingTransitions = new LinkedList<>();
         this.outgoingTransitions = new LinkedList<>();
     }
 
-    public List<Variable> getLiveVariables() {
+    public List<Declaration> getLiveVariables() {
         return liveVariables;
     }
 

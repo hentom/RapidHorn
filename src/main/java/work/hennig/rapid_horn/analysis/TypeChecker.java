@@ -103,7 +103,7 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
     @Override
     public void visit(Function function) {
-        frames.push(function.getParameters());
+        frames.push(new LinkedList<>(function.getParameters()));
         for (Statement statement : function.getStatements()) {
             statement.accept(this);
         }

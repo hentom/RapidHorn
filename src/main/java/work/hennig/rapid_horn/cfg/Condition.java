@@ -10,4 +10,8 @@ public class Condition extends Transition {
         super(source, target);
         this.condition = condition;
     }
+
+    public Expression getCondition() {
+        return condition;
+    }
 }

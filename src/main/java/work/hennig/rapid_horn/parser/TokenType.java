@@ -16,6 +16,8 @@ public enum TokenType {
     KEY_ELSE("keyword \'else\'"),
     KEY_WHILE("keyword \'while\'"),
     KEY_SKIP("keyword \'skip\'"),
+    KEY_ASSUME("keyword \'assume\'"),
+    KEY_ASSERT("keyword \'assert\'"),
 
     // operators
     OP_PLUS("operator \'+\'"),

@@ -41,6 +41,12 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
     }
 
     @Override
+    public void visit(AssertStatement statement) {
+        expectedType = Type.BOOLEAN;
+        statement.getCondition().accept(this);
+    }
+
+    @Override
     public void visit(AssignmentStatement statement) throws TypeException {
         Declaration declaration = findDeclaration(statement.getId());
         if (declaration == null) {
@@ -60,6 +66,12 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
         expectedType = declaration.getType();
         statement.getExpression().accept(this);
+    }
+
+    @Override
+    public void visit(AssumeStatement statement) {
+        expectedType = Type.BOOLEAN;
+        statement.getCondition().accept(this);
     }
 
     @Override

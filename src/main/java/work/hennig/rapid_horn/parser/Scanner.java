@@ -4,10 +4,12 @@ public class Scanner {
 
     private String input;
     private Token buffer;
+    private int lineNumber;
 
     public Scanner(String input) {
         this.input = input;
         this.buffer = null;
+        this.lineNumber = 1;
     }
 
     public Scanner(Scanner scanner) {
@@ -24,7 +26,14 @@ public class Scanner {
         }
 
         // skip whitespace characters
-        input = input.trim();
+        int pos = 0;
+        while (pos < input.length() && Character.isWhitespace(input.charAt(pos))) {
+            if (input.charAt(pos) == '\n') {
+                lineNumber++;
+            }
+            pos++;
+        }
+        input = input.substring(pos);
 
         if (input.length() > 0) {
             // check for keywords, boolean literals and type identifiers, assume identifier for other alphabetic input
@@ -47,6 +56,12 @@ public class Scanner {
                 } else if (startsWithKeyword("skip")) {
                     input = input.substring("skip".length());
                     return new Token(TokenType.KEY_SKIP, "skip");
+                } else if (startsWithKeyword("assume")) {
+                    input = input.substring("assume".length());
+                    return new Token(TokenType.KEY_ASSUME, "assume");
+                } else if (startsWithKeyword("assert")) {
+                    input = input.substring("assert".length());
+                    return new Token(TokenType.KEY_ASSERT, "assert");
                 } else if (startsWithKeyword("true")) {
                     input = input.substring("true".length());
                     return new Token(TokenType.LIT_TRUE, "true");
@@ -63,7 +78,7 @@ public class Scanner {
                     input = input.substring("mod".length());
                     return new Token(TokenType.OP_MODULO, "mod");
                 } else {
-                    int pos = 0;
+                    pos = 0;
                     while (pos < input.length() && Character.isAlphabetic(input.charAt(pos))) {
                         pos++;
                     }
@@ -75,7 +90,7 @@ public class Scanner {
 
             // check for integer literals next
             if (Character.isDigit(input.charAt(0))) {
-                int pos = 0;
+                pos = 0;
                 while (pos < input.length() && Character.isDigit(input.charAt(pos))) {
                     pos++;
                 }
@@ -165,7 +180,8 @@ public class Scanner {
                     input = input.substring(";".length());
                     return new Token(TokenType.SYM_SEMICOLON, ";");
             }
-            throw new UnsupportedOperationException("unrecognized token starting with \'" + input.charAt(0) + "\'");
+            throw new ParserException("unrecognized token starting with \'" + input.charAt(0) + "\' in line " +
+                    lineNumber);
         }
 
         return new Token(TokenType.EOF, "");
@@ -181,9 +197,13 @@ public class Scanner {
 
     public Token pushToken(Token token) {
         if (buffer != null) {
-            throw new UnsupportedOperationException("scanner token buffer overflow");
+            throw new ParserException("scanner token buffer overflow");
         }
         buffer = token;
         return buffer;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
     }
 }

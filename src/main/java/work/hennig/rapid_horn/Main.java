@@ -3,6 +3,7 @@ package work.hennig.rapid_horn;
 import work.hennig.rapid_horn.analysis.TypeChecker;
 import work.hennig.rapid_horn.cfg.Location;
 import work.hennig.rapid_horn.parser.Parser;
+import work.hennig.rapid_horn.parser.ParserException;
 import work.hennig.rapid_horn.rapid.Program;
 import work.hennig.rapid_horn.transformations.Rapid2CFG;
 
@@ -19,10 +20,19 @@ public class Main {
             try {
                 input = Files.readString(Path.of(args[i]));
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("ERROR: cannot open " + e.getMessage());
+                System.exit(1);
             }
-            Parser parser = new Parser(input);
-            Program program = parser.parseProgram();
+
+            Program program = null;
+            try {
+                Parser parser = new Parser(input);
+                program = parser.parseProgram();
+            } catch (ParserException e) {
+                System.err.println("ERROR: " + e.getMessage());
+                System.exit(1);
+            }
+
             if (!TypeChecker.check(program)) {
                 System.err.println("ERROR: type check failed");
             }

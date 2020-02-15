@@ -123,6 +123,10 @@ public class Parser {
                 expect(TokenType.KEY_SKIP);
                 expect(TokenType.SYM_SEMICOLON);
                 return new SkipStatement();
+            case KEY_ASSUME:
+                return parseAssumeStatement();
+            case KEY_ASSERT:
+                return parseAssertStatement();
         }
         fail("beginning of statement", token.getContent());
         return null; // never reached, as fail throws exception
@@ -204,6 +208,26 @@ public class Parser {
         List<Statement> block = parseBlock();
 
         return new WhileStatement(condition, block);
+    }
+
+    private AssumeStatement parseAssumeStatement() {
+        expect(TokenType.KEY_ASSUME);
+        expect(TokenType.SYM_LEFT_PARENTHESIS);
+        Expression condition = parseExpression();
+        expect(TokenType.SYM_RIGHT_PARENTHESIS);
+        expect(TokenType.SYM_SEMICOLON);
+
+        return new AssumeStatement(condition);
+    }
+
+    private AssertStatement parseAssertStatement() {
+        expect(TokenType.KEY_ASSERT);
+        expect(TokenType.SYM_LEFT_PARENTHESIS);
+        Expression condition = parseExpression();
+        expect(TokenType.SYM_RIGHT_PARENTHESIS);
+        expect(TokenType.SYM_SEMICOLON);
+
+        return new AssertStatement(condition);
     }
 
     private Expression parseExpression() {
@@ -323,6 +347,7 @@ public class Parser {
     }
 
     private void fail(String expected, String actual) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("expected " + expected + " instead of \'" + actual + "\'");
+        throw new ParserException("expected " + expected + " instead of \'" + actual + "\' in line " +
+                scanner.getLineNumber());
     }
 }

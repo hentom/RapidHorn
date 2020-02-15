@@ -146,6 +146,32 @@ class ScannerTest {
     }
 
     @Test
+    public void nextToken_AssumeKeyword() {
+        Scanner scanner = new Scanner("assume");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.KEY_ASSUME, token.getType());
+        assertEquals("assume", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
+    public void nextToken_AssertKeyword() {
+        Scanner scanner = new Scanner("assert");
+
+        Token token = scanner.nextToken();
+        assertEquals(TokenType.KEY_ASSERT, token.getType());
+        assertEquals("assert", token.getContent());
+
+        token = scanner.nextToken();
+        assertEquals(TokenType.EOF, token.getType());
+        assertEquals("", token.getContent());
+    }
+
+    @Test
     public void nextToken_PlusOperator() {
         Scanner scanner = new Scanner("+");
 

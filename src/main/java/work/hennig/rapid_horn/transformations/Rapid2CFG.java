@@ -11,10 +11,12 @@ import java.util.List;
 public class Rapid2CFG implements RapidVisitor {
 
     private final Location first;
+    private final Location error;
     private Location last;
 
     private Rapid2CFG(Location first) {
         this.first = first;
+        this.error = new Location(new LinkedList<>());
         this.last = first;
     }
 
@@ -41,6 +43,18 @@ public class Rapid2CFG implements RapidVisitor {
     }
 
     @Override
+    public void visit(AssertStatement statement) {
+        Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+        Transition toTarget = new Condition(last, target, statement.getCondition());
+        last.addOutgoingTransition(toTarget);
+        target.addIncomingTransition(toTarget);
+        Transition toError = new Condition(last, target, NegateExpression.negate(statement.getCondition()));
+        last.addOutgoingTransition(toError);
+        error.addIncomingTransition(toError);
+        last = target;
+    }
+
+    @Override
     public void visit(AssignmentStatement statement) {
         Variable variable;
         if (statement.hasIndex()) {
@@ -51,6 +65,15 @@ public class Rapid2CFG implements RapidVisitor {
 
         Location target = new Location(new LinkedList<>(last.getLiveVariables()));
         Transition transition = new Assignment(last, target, variable, statement.getExpression());
+        last.addOutgoingTransition(transition);
+        target.addIncomingTransition(transition);
+        last = target;
+    }
+
+    @Override
+    public void visit(AssumeStatement statement) {
+        Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+        Transition transition = new Condition(last, target, statement.getCondition());
         last.addOutgoingTransition(transition);
         target.addIncomingTransition(transition);
         last = target;

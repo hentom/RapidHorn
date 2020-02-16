@@ -2,20 +2,33 @@ package work.hennig.rapid_horn.cfg;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class Location {
 
-    private List<Declaration> liveVariables;
+    private String identifier;
+    private List<VariableDeclaration> liveVariables;
     private List<Transition> incomingTransitions;
     private List<Transition> outgoingTransitions;
 
-    public Location(List<Declaration> liveVariables) {
+    private static int counter = 0;
+
+    private static int nextCounter() {
+        return counter++;
+    }
+
+    public Location(List<VariableDeclaration> liveVariables) {
+        this.identifier = "loc" + nextCounter();
         this.liveVariables = liveVariables;
         this.incomingTransitions = new LinkedList<>();
         this.outgoingTransitions = new LinkedList<>();
     }
 
-    public List<Declaration> getLiveVariables() {
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public List<VariableDeclaration> getLiveVariables() {
         return liveVariables;
     }
 
@@ -33,5 +46,22 @@ public class Location {
 
     public boolean addOutgoingTransition(Transition transition) {
         return outgoingTransitions.add(transition);
+    }
+
+    public void accept(CFGVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return identifier.equals(location.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifier);
     }
 }

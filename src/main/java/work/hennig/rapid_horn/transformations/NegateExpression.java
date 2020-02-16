@@ -82,6 +82,12 @@ public class NegateExpression implements ExpressionVisitor {
     }
 
     @Override
+    public void visit(ImplicationExpression expression) {
+        expression.getRight().accept(this);
+        current = new AndExpression(expression.getLeft(), current);
+    }
+
+    @Override
     public void visit(LessEqualExpression expression) {
         current = new GreaterThanExpression(expression.getLeft(), expression.getRight());
     }

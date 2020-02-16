@@ -14,4 +14,9 @@ public class Condition extends Transition {
     public Expression getCondition() {
         return condition;
     }
+
+    @Override
+    public void accept(CFGVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -2,12 +2,12 @@ package work.hennig.rapid_horn.cfg;
 
 import java.util.Objects;
 
-public class Declaration {
+public class VariableDeclaration {
 
     private String identifier;
     private boolean isArray;
 
-    public Declaration(String identifier, boolean isArray) {
+    public VariableDeclaration(String identifier, boolean isArray) {
         this.identifier = identifier;
         this.isArray = isArray;
     }
@@ -24,7 +24,7 @@ public class Declaration {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Declaration that = (Declaration) o;
+        VariableDeclaration that = (VariableDeclaration) o;
         return isArray == that.isArray &&
                 identifier.equals(that.identifier);
     }

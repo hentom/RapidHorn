@@ -1,7 +1,7 @@
 package work.hennig.rapid_horn.transformations;
 
 import work.hennig.rapid_horn.cfg.*;
-import work.hennig.rapid_horn.cfg.Declaration;
+import work.hennig.rapid_horn.cfg.VariableDeclaration;
 import work.hennig.rapid_horn.expression.Expression;
 import work.hennig.rapid_horn.rapid.*;
 
@@ -10,45 +10,68 @@ import java.util.List;
 
 public class Rapid2CFG implements RapidVisitor {
 
+    private List<Location> locations;
+    private List<Transition> transitions;
+    private List<VariableDeclaration> declarations;
     private final Location first;
     private final Location error;
     private Location last;
 
     private Rapid2CFG(Location first) {
+        this.locations = new LinkedList<>();
+        this.transitions = new LinkedList<>();
+        this.declarations = new LinkedList<>();
         this.first = first;
         this.error = new Location(new LinkedList<>());
         this.last = first;
+
+        this.locations.add(this.first);
+        this.locations.add(this.error);
+        this.declarations.addAll(this.first.getLiveVariables());
     }
 
-    public static List<Location> transform(Program program) {
-        List<Location> result = new LinkedList<>();
+    public static CFG transform(Program program) {
+        CFG result = new CFG();
         for (Function function : program.getFunctions()) {
-            result.add(transform(function));
+            CFG cfg = transform(function);
+            if (function.getId().equals("main")) {
+                if (result.hasStart()) {
+                    throw new UnsupportedOperationException("program has more than one entry point");
+                }
+                result.add(cfg, cfg.getStartLocation());
+            } else {
+                result.add(cfg);
+            }
         }
         return result;
     }
 
-    public static Location transform(Function function) {
-        List<Declaration> declarations = new LinkedList<>();
-        for (var declaration : function.getParameters()) {
-            declarations.add(new Declaration(declaration.getId(), declaration.isArray()));
+    public static CFG transform(Function function) {
+        List<VariableDeclaration> varDeclarations = new LinkedList<>();
+        for (Declaration declaration : function.getParameters()) {
+            varDeclarations.add(new VariableDeclaration(declaration.getId(), declaration.isArray()));
         }
 
-        Rapid2CFG transformer = new Rapid2CFG(new Location(declarations));
+        Location start = new Location(varDeclarations);
+        Rapid2CFG transformer = new Rapid2CFG(start);
         for (Statement statement : function.getStatements()) {
             statement.accept(transformer);
         }
 
-        return transformer.first;
+        return new CFG(transformer.locations, transformer.transitions, transformer.declarations, start,
+                transformer.error);
     }
 
     @Override
     public void visit(AssertStatement statement) {
         Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+        locations.add(target);
         Transition toTarget = new Condition(last, target, statement.getCondition());
+        transitions.add(toTarget);
         last.addOutgoingTransition(toTarget);
         target.addIncomingTransition(toTarget);
         Transition toError = new Condition(last, target, NegateExpression.negate(statement.getCondition()));
+        transitions.add(toError);
         last.addOutgoingTransition(toError);
         error.addIncomingTransition(toError);
         last = target;
@@ -64,7 +87,9 @@ public class Rapid2CFG implements RapidVisitor {
         }
 
         Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+        locations.add(target);
         Transition transition = new Assignment(last, target, variable, statement.getExpression());
+        transitions.add(transition);
         last.addOutgoingTransition(transition);
         target.addIncomingTransition(transition);
         last = target;
@@ -73,7 +98,9 @@ public class Rapid2CFG implements RapidVisitor {
     @Override
     public void visit(AssumeStatement statement) {
         Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+        locations.add(target);
         Transition transition = new Condition(last, target, statement.getCondition());
+        transitions.add(transition);
         last.addOutgoingTransition(transition);
         target.addIncomingTransition(transition);
         last = target;
@@ -83,8 +110,10 @@ public class Rapid2CFG implements RapidVisitor {
     public void visit(ConditionalStatement statement) {
         Location initial = last;
         Location afterCondition = new Location(new LinkedList<>(initial.getLiveVariables()));
+        locations.add(afterCondition);
 
         Transition condition = new Condition(initial, afterCondition, statement.getCondition());
+        transitions.add(condition);
         initial.addOutgoingTransition(condition);
         afterCondition.addIncomingTransition(condition);
 
@@ -97,7 +126,9 @@ public class Rapid2CFG implements RapidVisitor {
         Expression negatedExpression = NegateExpression.negate(statement.getCondition());
         if (statement.hasElseBlock()) {
             Location afterNegation = new Location(new LinkedList<>(initial.getLiveVariables()));
+            locations.add(afterNegation);
             Transition negatedCondition = new Condition(initial, afterNegation, negatedExpression);
+            transitions.add(negatedCondition);
             initial.addOutgoingTransition(negatedCondition);
             afterNegation.addIncomingTransition(negatedCondition);
 
@@ -108,18 +139,22 @@ public class Rapid2CFG implements RapidVisitor {
             Location lastElseBlock = last;
 
             Location end = new Location(new LinkedList<>(initial.getLiveVariables()));
+            locations.add(end);
 
             Transition endIfBlock = new Skip(lastIfBlock, end);
+            transitions.add(endIfBlock);
             lastIfBlock.addOutgoingTransition(endIfBlock);
             end.addIncomingTransition(endIfBlock);
 
             Transition endElseBlock = new Skip(lastElseBlock, end);
+            transitions.add(endElseBlock);
             lastElseBlock.addOutgoingTransition(endElseBlock);
             end.addIncomingTransition(endElseBlock);
 
             last = end;
         } else {
             Transition negatedCondition = new Condition(initial, lastIfBlock, negatedExpression);
+            transitions.add(negatedCondition);
             initial.addOutgoingTransition(negatedCondition);
             lastIfBlock.addIncomingTransition(negatedCondition);
             last = lastIfBlock; // not necessary, just for readability
@@ -127,7 +162,7 @@ public class Rapid2CFG implements RapidVisitor {
     }
 
     @Override
-    public void visit(work.hennig.rapid_horn.rapid.Declaration statement) {
+    public void visit(Declaration statement) {
         throw new UnsupportedOperationException();
     }
 
@@ -142,13 +177,17 @@ public class Rapid2CFG implements RapidVisitor {
             }
 
             Location target = new Location(new LinkedList<>(last.getLiveVariables()));
+            locations.add(target);
             Transition transition = new Assignment(last, target, variable, statement.getExpression());
+            transitions.add(transition);
             last.addOutgoingTransition(transition);
             target.addIncomingTransition(transition);
             last = target;
         }
 
-        last.getLiveVariables().add(new Declaration(statement.getId(), statement.isArray()));
+        VariableDeclaration declaration = new VariableDeclaration(statement.getId(), statement.isArray());
+        last.getLiveVariables().add(declaration);
+        declarations.add(declaration);
     }
 
     @Override
@@ -170,8 +209,10 @@ public class Rapid2CFG implements RapidVisitor {
     public void visit(WhileStatement statement) {
         Location initial = last;
         Location afterCondition = new Location(new LinkedList<>(initial.getLiveVariables()));
+        locations.add(afterCondition);
 
         Transition condition = new Condition(initial, afterCondition, statement.getCondition());
+        transitions.add(condition);
         initial.addOutgoingTransition(condition);
         afterCondition.addIncomingTransition(condition);
 
@@ -182,12 +223,15 @@ public class Rapid2CFG implements RapidVisitor {
         Location lastWhileBlock = last;
 
         Transition loopTransition = new Skip(lastWhileBlock, initial);
+        transitions.add(loopTransition);
         lastWhileBlock.addOutgoingTransition(loopTransition);
         initial.addIncomingTransition(loopTransition);
 
         Location end = new Location(new LinkedList<>(initial.getLiveVariables()));
+        locations.add(end);
         Expression negatedExpression = NegateExpression.negate(statement.getCondition());
         Transition negatedCondition = new Condition(initial, end, negatedExpression);
+        transitions.add(negatedCondition);
         initial.addOutgoingTransition(negatedCondition);
         end.addIncomingTransition(negatedCondition);
         last = end;

@@ -20,4 +20,9 @@ public class Assignment extends Transition {
     public Expression getExpression() {
         return expression;
     }
+
+    @Override
+    public void accept(CFGVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -284,6 +284,16 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
     }
 
     @Override
+    public void visit(ImplicationExpression expression) {
+        if (expectedType != Type.BOOLEAN) {
+            throw new TypeException("expected type " + expectedType.toString() + " but found logical and");
+        }
+
+        expression.getLeft().accept(this);
+        expression.getRight().accept(this);
+    }
+
+    @Override
     public void visit(LessEqualExpression expression) {
         if (expectedType != Type.BOOLEAN) {
             throw new TypeException("expected type " + expectedType.toString() + " but found less or equal");

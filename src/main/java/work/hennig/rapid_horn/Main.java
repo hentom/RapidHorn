@@ -1,7 +1,7 @@
 package work.hennig.rapid_horn;
 
 import work.hennig.rapid_horn.analysis.TypeChecker;
-import work.hennig.rapid_horn.cfg.Location;
+import work.hennig.rapid_horn.cfg.CFG;
 import work.hennig.rapid_horn.parser.Parser;
 import work.hennig.rapid_horn.parser.ParserException;
 import work.hennig.rapid_horn.rapid.Program;
@@ -10,7 +10,6 @@ import work.hennig.rapid_horn.transformations.Rapid2CFG;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 public class Main {
 
@@ -36,7 +35,7 @@ public class Main {
             if (!TypeChecker.check(program)) {
                 System.err.println("ERROR: type check failed");
             }
-            List<Location> cfg = Rapid2CFG.transform(program);
+            CFG cfg = Rapid2CFG.transform(program);
         }
     }
 }

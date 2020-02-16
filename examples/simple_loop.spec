@@ -1,4 +1,4 @@
-func double(Int k)
+func main(Int k)
 {
     assume(k >= 0);
     Int r = 0;

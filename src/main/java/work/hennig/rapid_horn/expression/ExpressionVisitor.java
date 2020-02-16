@@ -15,6 +15,7 @@ public interface ExpressionVisitor {
     void visit(EqualExpression expression);
     void visit(GreaterEqualExpression expression);
     void visit(GreaterThanExpression expression);
+    void visit(ImplicationExpression expression);
     void visit(LessEqualExpression expression);
     void visit(LessThanExpression expression);
     void visit(NotEqualExpression expression);

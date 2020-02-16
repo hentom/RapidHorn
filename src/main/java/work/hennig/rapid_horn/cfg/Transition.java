@@ -17,4 +17,6 @@ public abstract class Transition {
     public Location getTarget() {
         return target;
     }
+
+    public abstract void accept(CFGVisitor visitor);
 }

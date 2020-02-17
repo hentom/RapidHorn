@@ -356,4 +356,13 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
         expression.getLeft().accept(this);
         expression.getRight().accept(this);
     }
+
+    @Override
+    public void visit(RelationExpression expression) {
+        if (expectedType != Type.BOOLEAN) {
+            throw new TypeException("expected type " + expectedType.toString() + " but found relation");
+        }
+
+        // TODO: check arguments
+    }
 }

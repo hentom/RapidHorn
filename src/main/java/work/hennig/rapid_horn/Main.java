@@ -5,6 +5,7 @@ import work.hennig.rapid_horn.cfg.CFG;
 import work.hennig.rapid_horn.parser.Parser;
 import work.hennig.rapid_horn.parser.ParserException;
 import work.hennig.rapid_horn.rapid.Program;
+import work.hennig.rapid_horn.transformations.CFG2Horn;
 import work.hennig.rapid_horn.transformations.Rapid2CFG;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class Main {
                 System.err.println("ERROR: type check failed");
             }
             CFG cfg = Rapid2CFG.transform(program);
+
+            CFG2Horn.transform(cfg);
         }
     }
 }

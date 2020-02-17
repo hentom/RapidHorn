@@ -116,4 +116,9 @@ public class NegateExpression implements ExpressionVisitor {
 
         current = new AndExpression(leftNegated, current);
     }
+
+    @Override
+    public void visit(RelationExpression expression) {
+        current = new NotExpression(expression);
+    }
 }

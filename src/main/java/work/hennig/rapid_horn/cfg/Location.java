@@ -1,5 +1,7 @@
 package work.hennig.rapid_horn.cfg;
 
+import work.hennig.rapid_horn.rapid.Declaration;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -7,7 +9,7 @@ import java.util.Objects;
 public class Location {
 
     private String identifier;
-    private List<VariableDeclaration> liveVariables;
+    private List<Declaration> liveVariables;
     private List<Transition> incomingTransitions;
     private List<Transition> outgoingTransitions;
 
@@ -17,8 +19,15 @@ public class Location {
         return counter++;
     }
 
-    public Location(List<VariableDeclaration> liveVariables) {
+    public Location(List<Declaration> liveVariables) {
         this.identifier = "loc" + nextCounter();
+        this.liveVariables = liveVariables;
+        this.incomingTransitions = new LinkedList<>();
+        this.outgoingTransitions = new LinkedList<>();
+    }
+
+    public Location(String identifier, List<Declaration> liveVariables) {
+        this.identifier = identifier;
         this.liveVariables = liveVariables;
         this.incomingTransitions = new LinkedList<>();
         this.outgoingTransitions = new LinkedList<>();
@@ -28,7 +37,7 @@ public class Location {
         return identifier;
     }
 
-    public List<VariableDeclaration> getLiveVariables() {
+    public List<Declaration> getLiveVariables() {
         return liveVariables;
     }
 

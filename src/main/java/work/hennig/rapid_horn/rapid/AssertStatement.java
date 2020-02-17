@@ -16,6 +16,6 @@ public class AssertStatement extends Statement {
 
     @Override
     public void accept(RapidVisitor visitor) {
-
+        visitor.visit(this);
     }
 }

@@ -22,7 +22,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -36,7 +36,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -45,14 +45,14 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
     public void visit(NegationExpression expression) {
         builder.append("( - ");
         expression.getSubexpression().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -61,17 +61,17 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
     public void visit(VariableExpression expression) {
         if (expression.isArray()) {
             builder.append("( select ");
-            expression.getId();
+            builder.append(expression.getId());
             builder.append(' ');
             expression.getIndex().accept(this);
-            builder.append(')');
+            builder.append(" )");
         } else {
             builder.append(expression.getId());
         }
@@ -83,7 +83,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -101,7 +101,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -110,7 +110,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -119,7 +119,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -128,7 +128,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -137,7 +137,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -146,7 +146,7 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -155,14 +155,14 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append("))");
+        builder.append(" ) )");
     }
 
     @Override
     public void visit(NotExpression expression) {
         builder.append("( not ");
         expression.getSubexpression().accept(this);
-        builder.append(')');
+        builder.append(" )");
     }
 
     @Override
@@ -171,6 +171,21 @@ public class Expression2SMTLIB implements ExpressionVisitor {
         expression.getLeft().accept(this);
         builder.append(' ');
         expression.getRight().accept(this);
-        builder.append(')');
+        builder.append(" )");
+    }
+
+    @Override
+    public void visit(RelationExpression expression) {
+        if (expression.getArguments().size() == 0) {
+            builder.append(expression.getIdentifier());
+        } else {
+            builder.append("( ");
+            builder.append(expression.getIdentifier());
+            for (Expression argument : expression.getArguments()) {
+                argument.accept(this);
+                builder.append(' ');
+            }
+            builder.append(" )");
+        }
     }
 }

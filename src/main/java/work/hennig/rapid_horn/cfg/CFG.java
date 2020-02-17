@@ -1,5 +1,7 @@
 package work.hennig.rapid_horn.cfg;
 
+import work.hennig.rapid_horn.rapid.Declaration;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +10,7 @@ public class CFG {
 
     private List<Location> locations;
     private List<Transition> transitions;
-    private List<VariableDeclaration> declarations;
+    private List<Declaration> declarations;
     private Optional<Location> startLocation;
     private List<Location> errorLocations;
 
@@ -20,7 +22,7 @@ public class CFG {
         this.errorLocations = new LinkedList<>();
     }
 
-    public CFG(List<Location> locations, List<Transition> transitions, List<VariableDeclaration> declarations,
+    public CFG(List<Location> locations, List<Transition> transitions, List<Declaration> declarations,
                Location start, Location error) {
         this.locations = locations;
         this.transitions = transitions;
@@ -38,7 +40,7 @@ public class CFG {
         return transitions;
     }
 
-    public List<VariableDeclaration> getDeclarations() {
+    public List<Declaration> getDeclarations() {
         return declarations;
     }
 

@@ -21,4 +21,5 @@ public interface ExpressionVisitor {
     void visit(NotEqualExpression expression);
     void visit(NotExpression expression);
     void visit(OrExpression expression);
+    void visit(RelationExpression expression);
 }

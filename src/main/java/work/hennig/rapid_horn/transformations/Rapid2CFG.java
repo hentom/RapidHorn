@@ -1,7 +1,6 @@
 package work.hennig.rapid_horn.transformations;
 
 import work.hennig.rapid_horn.cfg.*;
-import work.hennig.rapid_horn.cfg.VariableDeclaration;
 import work.hennig.rapid_horn.expression.Expression;
 import work.hennig.rapid_horn.rapid.*;
 
@@ -12,7 +11,7 @@ public class Rapid2CFG implements RapidVisitor {
 
     private List<Location> locations;
     private List<Transition> transitions;
-    private List<VariableDeclaration> declarations;
+    private List<Declaration> declarations;
     private final Location first;
     private final Location error;
     private Location last;
@@ -22,7 +21,7 @@ public class Rapid2CFG implements RapidVisitor {
         this.transitions = new LinkedList<>();
         this.declarations = new LinkedList<>();
         this.first = first;
-        this.error = new Location(new LinkedList<>());
+        this.error = new Location("error", new LinkedList<>());
         this.last = first;
 
         this.locations.add(this.first);
@@ -47,12 +46,7 @@ public class Rapid2CFG implements RapidVisitor {
     }
 
     public static CFG transform(Function function) {
-        List<VariableDeclaration> varDeclarations = new LinkedList<>();
-        for (Declaration declaration : function.getParameters()) {
-            varDeclarations.add(new VariableDeclaration(declaration.getId(), declaration.isArray()));
-        }
-
-        Location start = new Location(varDeclarations);
+        Location start = new Location(new LinkedList<>(function.getParameters()));
         Rapid2CFG transformer = new Rapid2CFG(start);
         for (Statement statement : function.getStatements()) {
             statement.accept(transformer);
@@ -70,7 +64,7 @@ public class Rapid2CFG implements RapidVisitor {
         transitions.add(toTarget);
         last.addOutgoingTransition(toTarget);
         target.addIncomingTransition(toTarget);
-        Transition toError = new Condition(last, target, NegateExpression.negate(statement.getCondition()));
+        Transition toError = new Condition(last, error, NegateExpression.negate(statement.getCondition()));
         transitions.add(toError);
         last.addOutgoingTransition(toError);
         error.addIncomingTransition(toError);
@@ -185,7 +179,7 @@ public class Rapid2CFG implements RapidVisitor {
             last = target;
         }
 
-        VariableDeclaration declaration = new VariableDeclaration(statement.getId(), statement.isArray());
+        Declaration declaration = new Declaration(statement);
         last.getLiveVariables().add(declaration);
         declarations.add(declaration);
     }

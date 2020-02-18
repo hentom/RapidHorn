@@ -27,19 +27,26 @@ public class CFG2Horn implements CFGVisitor {
         if (target.getLiveVariables().size() == 0) {
             builder.append(target.getIdentifier());
         } else {
-            builder.append("( " + target.getIdentifier() + " ");
+            builder.append("( ");
+            builder.append(target.getIdentifier());
+            builder.append(" ");
             for (Declaration declaration : target.getLiveVariables()) {
-                if (declaration.isArray()) {
-
-                } else {
-                    if (declaration.getId().equals(assignment.getVariable().getIdentifier())) {
-                        builder.append(Expression2SMTLIB.transform(assignment.getExpression()));
-                        builder.append(" ");
-                    } else {
+                if (declaration.getId().equals(assignment.getVariable().getIdentifier())) {
+                    if (declaration.isArray()) {
+                        builder.append("( store ");
                         builder.append(declaration.getId());
                         builder.append(" ");
+                        builder.append(Expression2SMTLIB.transform(((Array)assignment.getVariable()).getIndex()));
+                        builder.append(" ");
+                        builder.append(Expression2SMTLIB.transform(assignment.getExpression()));
+                        builder.append(" )");
+                    } else {
+                        builder.append(Expression2SMTLIB.transform(assignment.getExpression()));
                     }
+                } else {
+                    builder.append(declaration.getId());
                 }
+                builder.append(" ");
             }
             builder.append(")");
         }
@@ -56,7 +63,9 @@ public class CFG2Horn implements CFGVisitor {
             builder.append(" ( ");
             for (Declaration declaration : location.getLiveVariables()) {
                 if (declaration.isArray()) {
-
+                    builder.append("( Array Int ");
+                    builder.append(declaration.getType());
+                    builder.append(" ) ");
                 } else {
                     builder.append(declaration.getType());
                     builder.append(" ");
@@ -66,15 +75,17 @@ public class CFG2Horn implements CFGVisitor {
         }
 
         for (Declaration declaration : cfg.getDeclarations()) {
+            builder.append("( declare-var ");
+            builder.append(declaration.getId());
+            builder.append(" ");
             if (declaration.isArray()) {
-
-            } else {
-                builder.append("( declare-var ");
-                builder.append(declaration.getId());
-                builder.append(" ");
+                builder.append("( Array Int ");
                 builder.append(declaration.getType());
-                builder.append(" )\n");
+                builder.append(" ) ");
+            } else {
+                builder.append(declaration.getType());
             }
+            builder.append(" )\n");
         }
 
         if (cfg.hasStart()) {
@@ -111,14 +122,12 @@ public class CFG2Horn implements CFGVisitor {
         if (location.getLiveVariables().size() == 0) {
             builder.append(location.getIdentifier());
         } else {
-            builder.append("( " + location.getIdentifier() + " ");
+            builder.append("( ");
+            builder.append(location.getIdentifier());
+            builder.append(" ");
             for (Declaration declaration : location.getLiveVariables()) {
-                if (declaration.isArray()) {
-
-                } else {
-                    builder.append(declaration.getId());
-                    builder.append(" ");
-                }
+                builder.append(declaration.getId());
+                builder.append(" ");
             }
             builder.append(")");
         }

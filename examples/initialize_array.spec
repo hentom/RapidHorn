@@ -3,7 +3,7 @@ func main()
 	Int[] a;
 	const Int alength;
 	const Int v;
-	assume(alength <= 0);
+	assume(alength >= 0 && alength <= 10);
 
 	Int i = 0;
 	while(i < alength)

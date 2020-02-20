@@ -24,8 +24,8 @@ public class Rapid2CFG implements RapidVisitor {
         this.error = new Location("error", new LinkedList<>());
         this.last = first;
 
-        this.locations.add(this.first);
         this.locations.add(this.error);
+        this.locations.add(this.first);
         this.declarations.addAll(this.first.getLiveVariables());
     }
 

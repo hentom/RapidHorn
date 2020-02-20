@@ -81,7 +81,7 @@ public class CFG2Horn implements CFGVisitor {
             if (declaration.isArray()) {
                 builder.append("( Array Int ");
                 builder.append(declaration.getType());
-                builder.append(" ) ");
+                builder.append(" )");
             } else {
                 builder.append(declaration.getType());
             }

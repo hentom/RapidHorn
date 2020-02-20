@@ -331,7 +331,7 @@ public class Parser {
             case OP_NEG:
                 return new NotExpression(parseFactorExpression());
             case SYM_LEFT_PARENTHESIS: {
-                Expression subexpression = parseArithmeticExpression();
+                Expression subexpression = parseExpression();
                 expect(TokenType.SYM_RIGHT_PARENTHESIS);
                 return subexpression;
             }

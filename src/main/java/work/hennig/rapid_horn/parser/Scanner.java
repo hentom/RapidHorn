@@ -35,6 +35,17 @@ public class Scanner {
         }
         input = input.substring(pos);
 
+        // skip rest of line, when '//' is found
+        if (input.startsWith("//")) {
+            int eol = 0;
+            while (eol < input.length() && input.charAt(eol) != '\n') {
+                eol++;
+            }
+            input = input.substring(eol);
+            lineNumber++;
+            return nextToken();
+        }
+
         if (input.length() > 0) {
             // check for keywords, boolean literals and type identifiers, assume identifier for other alphabetic input
             if (Character.isAlphabetic(input.charAt(0))) {

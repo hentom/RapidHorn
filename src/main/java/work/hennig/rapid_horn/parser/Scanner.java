@@ -79,7 +79,7 @@ public class Scanner {
                     return new Token(TokenType.OP_MODULO, "mod");
                 } else {
                     pos = 0;
-                    while (pos < input.length() && Character.isAlphabetic(input.charAt(pos))) {
+                    while (pos < input.length() && Character.isLetterOrDigit(input.charAt(pos))) {
                         pos++;
                     }
                     String id = input.substring(0, pos);

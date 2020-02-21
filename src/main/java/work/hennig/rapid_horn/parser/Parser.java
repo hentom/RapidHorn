@@ -137,7 +137,7 @@ public class Parser {
 
         Token token = scanner.nextToken();
         if (token.getType() == TokenType.OP_ASSIGN) {
-            Expression expression = parseArithmeticExpression();
+            Expression expression = parseExpression();
             expect(TokenType.SYM_SEMICOLON);
             return new DeclarationStatement(declaration, expression);
         } else {
@@ -167,7 +167,7 @@ public class Parser {
 
         expect(TokenType.OP_ASSIGN);
 
-        Expression expression = parseArithmeticExpression();
+        Expression expression = parseExpression();
 
         expect(TokenType.SYM_SEMICOLON);
 
@@ -251,22 +251,22 @@ public class Parser {
 
         Token token = scanner.nextToken();
         if (token.getType() == TokenType.OP_EQUAL) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new EqualExpression(left, right);
         } else if (token.getType() == TokenType.OP_NOT_EQUAL) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new NotEqualExpression(left, right);
         } else if (token.getType() == TokenType.OP_LESS_THAN) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new LessThanExpression(left, right);
         } else if (token.getType() == TokenType.OP_LESS_THAN_OR_EQUAL) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new LessEqualExpression(left, right);
         } else if (token.getType() == TokenType.OP_GREATER_THAN) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new GreaterThanExpression(left, right);
         } else if (token.getType() == TokenType.OP_GREATER_THAN_OR_EQUAL) {
-            Expression right = parseArithmeticExpression();
+            Expression right = parseRelationalExpression();
             return new GreaterEqualExpression(left, right);
         } else {
             scanner.pushToken(token);

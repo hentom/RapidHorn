@@ -10,7 +10,7 @@ import java.util.Stack;
 public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
     private Stack<List<Declaration>> frames;
-    private Type expectedType;
+    private Type currentType;
 
     private TypeChecker() {
         this.frames = new Stack<>();
@@ -40,10 +40,16 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
         return null;
     }
 
+    private void fail(String expected, String found) {
+        throw new TypeException("expected " + expected + " but found " + found);
+    }
+
     @Override
     public void visit(AssertStatement statement) {
-        expectedType = Type.BOOLEAN;
         statement.getCondition().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("boolean condition in assert statement", "expression of type " + currentType);
+        }
     }
 
     @Override
@@ -60,24 +66,33 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
             if (!declaration.isArray()) {
                 throw new TypeException("\'" + statement.getId() + "\' is not declared as array but indexed");
             }
-            expectedType = Type.INTEGER;
             statement.getIndex().accept(this);
+            if (currentType != Type.INTEGER) {
+                fail("index expression of type Int", "expression of type " + currentType);
+            }
         }
 
-        expectedType = declaration.getType();
         statement.getExpression().accept(this);
+        if (currentType != declaration.getType()) {
+            fail("expression of type " + declaration.getType() + " for assignment",
+                    "expression of type " + currentType);
+        }
     }
 
     @Override
     public void visit(AssumeStatement statement) {
-        expectedType = Type.BOOLEAN;
         statement.getCondition().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("boolean condition in assume statement", "expression of type " + currentType);
+        }
     }
 
     @Override
     public void visit(ConditionalStatement statement) {
-        expectedType = Type.BOOLEAN;
         statement.getCondition().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("boolean condition for if statement", "expression of type " + currentType);
+        }
 
         frames.push(new LinkedList<>());
         for (Statement s : statement.getIfBlock()) {
@@ -102,8 +117,11 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
     @Override
     public void visit(DeclarationStatement statement) {
         if (statement.hasExpression()) {
-            expectedType = statement.getType();
             statement.getExpression().accept(this);
+            if (currentType != statement.getType()) {
+                fail("expression of type " + statement.getType() + " for initialization",
+                        "expression of type " + currentType);
+            }
         }
 
         if (findDeclaration(statement.getId()) != null) {
@@ -134,8 +152,10 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
     @Override
     public void visit(WhileStatement statement) {
-        expectedType = Type.BOOLEAN;
         statement.getCondition().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("boolean condition for while statement", "expression of type " + currentType);
+        }
 
         frames.push(new LinkedList<>());
         for (Statement s : statement.getBlock()) {
@@ -150,59 +170,77 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
     @Override
     public void visit(AdditionExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found addition");
+        expression.getLeft().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for addition", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for addition", "expression of type " + currentType);
+        }
+
+        currentType = Type.INTEGER;
     }
 
     @Override
     public void visit(IntegerLiteralExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found integer literal " +
-                    expression.getValue());
-        }
+        currentType = Type.INTEGER;
     }
 
     @Override
     public void visit(ModuloExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found modulo");
+        expression.getLeft().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for modulo", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for modulo", "expression of type " + currentType);
+        }
+
+        currentType = Type.INTEGER;
     }
 
     @Override
     public void visit(MultiplicationExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found multiplication");
+        expression.getLeft().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for multiplication", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for multiplication", "expression of type " + currentType);
+        }
+
+        currentType = Type.INTEGER;
     }
 
     @Override
     public void visit(NegationExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found unary minus");
+        expression.getSubexpression().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for negation", "expression of type " + currentType);
         }
 
-        expression.getSubexpression().accept(this);
+        currentType = Type.INTEGER;
     }
 
     @Override
     public void visit(SubtractionExpression expression) {
-        if (expectedType != Type.INTEGER) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found subtraction");
+        expression.getLeft().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for subtraction", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.INTEGER) {
+            fail("expression of type Int for subtraction", "expression of type " + currentType);
+        }
+
+        currentType = Type.INTEGER;
     }
 
     @Override
@@ -211,10 +249,8 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
         if (declaration == null) {
             throw new TypeException("\'" + expression.getId() +"\' is used but not declared");
         }
-        if (declaration.getType() != expectedType) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found variable of type " +
-                    declaration.getType());
-        }
+
+        currentType = declaration.getType();
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -223,146 +259,144 @@ public class TypeChecker implements RapidVisitor, ExpressionVisitor {
 
     @Override
     public void visit(AndExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found logical and");
+        expression.getLeft().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical and", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical and", "expression of type " + currentType);
+        }
+
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(BooleanLiteralExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found boolean literal");
-        }
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(EqualExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found equality relation");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(GreaterEqualExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found greater or equal");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(GreaterThanExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found greater");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(ImplicationExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found logical and");
+        expression.getLeft().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical implication", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical implication", "expression of type " + currentType);
+        }
+
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(LessEqualExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found less or equal");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(LessThanExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found less");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(NotEqualExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found not equal relation");
+        expression.getLeft().accept(this);
+        Type leftType = currentType;
+
+        expression.getRight().accept(this);
+        if (currentType != leftType) {
+            fail("expression of type " + leftType, "expression of type " + currentType);
         }
 
-        Type outerType = expectedType;
-        expectedType = Type.INTEGER;
-
-        expression.getLeft().accept(this);
-        expression.getRight().accept(this);
-
-        expectedType = outerType;
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(NotExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found logical negation");
+        expression.getSubexpression().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical negation", "expression of type " + currentType);
         }
 
-        expression.getSubexpression().accept(this);
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(OrExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found logical or");
+        expression.getLeft().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical or", "expression of type " + currentType);
         }
 
-        expression.getLeft().accept(this);
         expression.getRight().accept(this);
+        if (currentType != Type.BOOLEAN) {
+            fail("expression of type Bool for logical or", "expression of type " + currentType);
+        }
+
+        currentType = Type.BOOLEAN;
     }
 
     @Override
     public void visit(RelationExpression expression) {
-        if (expectedType != Type.BOOLEAN) {
-            throw new TypeException("expected type " + expectedType.toString() + " but found relation");
-        }
-
         // TODO: check arguments
     }
 }

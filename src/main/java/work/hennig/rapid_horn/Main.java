@@ -15,6 +15,10 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) {
+        if (args.length == 0) {
+            usage();
+            System.exit(0);
+        }
         for (int i = 0; i < args.length; i++) {
             String input = "";
             try {
@@ -40,5 +44,9 @@ public class Main {
 
             CFG2Horn.transform(cfg);
         }
+    }
+
+    public static void usage() {
+        System.err.println("usage: java -jar RapidHorn.java <list of input files>");
     }
 }

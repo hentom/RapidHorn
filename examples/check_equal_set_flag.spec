@@ -14,26 +14,22 @@ func main()
     {
       r = 1;
     }
-    else
-    {
-      skip;
-    }
     i = i + 1;
   }
   
   if (r == 1)
   {
-    Int flag = 0;
+    Bool flag = false;
     Int j = 0;
     while(j < length)
     {
       if (a[j] != b[j])
       {
-        flag = 1;
+        flag = true;
       }
       j = j + 1;
     }
-    assert(flag == 1);
+    assert(flag);
   }
   else
   {

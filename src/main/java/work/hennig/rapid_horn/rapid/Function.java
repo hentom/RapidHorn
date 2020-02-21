@@ -1,6 +1,5 @@
 package work.hennig.rapid_horn.rapid;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class Function {

@@ -48,7 +48,7 @@ public class NegateExpression implements ExpressionVisitor {
 
     @Override
     public void visit(VariableExpression expression) {
-        throw new UnsupportedOperationException("cannot negate arithmetic expression");
+        current = new NotExpression(expression);
     }
 
     @Override

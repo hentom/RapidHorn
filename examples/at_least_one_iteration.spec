@@ -2,7 +2,7 @@ func main()
 {
   const Int[] a;
   const Int alength;
-  assume(0 < alength);
+  assume(alength >= 0);
 
   Int i = 0;
   Int j = 0;
@@ -12,5 +12,12 @@ func main()
     j = 1;
   }
 
-  assert(j == 1);
+  if (alength == 0)
+  {
+    assert(j == 0);
+  }
+  else
+  {
+    assert(j == 1);
+  }
 }

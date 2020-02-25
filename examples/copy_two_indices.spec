@@ -15,6 +15,7 @@ func main()
     j = j + 1;
   }
 
+  // check property
   Int k = 0;
   while(k < blength)
   {

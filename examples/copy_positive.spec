@@ -4,7 +4,7 @@ func main()
   const Int[] b;
   const Int blength;
   assume(0 <= blength);
-  assume(blength < 3);
+  assume(blength < 3); // even 2 is to big for the proof to terminate
 
   Int i = 0;
   Int alength = 0;
@@ -21,8 +21,10 @@ func main()
   Int j = 0;
   while(j < alength)
   {
+    // check property: all elements of a are not negative
     assert(0 <= a[j]);
     
+    // check property: for every element from a there exists the same element in b
     Bool flag = false;
     Int l = 0;
     while(l < blength)
